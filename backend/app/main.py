@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.core.database import engine, Base
-from app.api import tasks
+from app.api import tasks, webhooks
 
 Base.metadata.create_all(bind=engine)
 
@@ -22,3 +22,4 @@ app.add_middleware(
 )
 
 app.include_router(tasks.router)
+app.include_router(webhooks.router)
