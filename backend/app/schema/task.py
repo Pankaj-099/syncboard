@@ -19,7 +19,7 @@ class TaskStatusUpdate(BaseModel):
     status: TaskStatus
 
 class TaskResponse(BaseModel):
-    id: int
+    id: str
     title: str
     description: Optional[str]
     status: TaskStatus

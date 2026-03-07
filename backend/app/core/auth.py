@@ -54,7 +54,7 @@ async def get_current_user(request: Request) -> AuthUser:
     claims = request_state.payload
     user_id = claims.get("sub")
     org_id = claims.get("org_id")
-    org_permissions = claims.get("permissions") or claims.get("org_permission") or []
+    org_permissions = claims.get("org_permissions") or claims.get("permissions") or []
 
     if not user_id:
         raise HTTPException(
