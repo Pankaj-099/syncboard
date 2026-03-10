@@ -2,6 +2,8 @@
 
 > B2B SaaS Kanban application for team task management — built with FastAPI, React, PostgreSQL, Redis, and Clerk.
 
+🔗 **Live Demo:** [taskboard-frontend.vercel.app](https://taskboard-frontend-puce.vercel.app) &nbsp;|&nbsp; 📖 **API Docs:** [taskboard-backend-ecxj.onrender.com/docs](https://taskboard-backend-ecxj.onrender.com/docs)
+
 ---
 
 ## Features
