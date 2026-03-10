@@ -65,13 +65,13 @@ async def update_task(task_id:str,
             detail="Task not found"
         )
     if task_data.title is not None:
-        task.title == task_data.title
+        task.title = task_data.title
 
     if task_data.description is not None:
-        task.description == task_data.description
+        task.description = task_data.description
 
     if task_data.status is not None:
-        task.status == task_data.status
+        task.status = task_data.status
 
     db.commit()
     db.refresh(task)

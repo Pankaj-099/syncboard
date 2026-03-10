@@ -19,8 +19,8 @@ class Task(Base):
     status = Column(Enum(TaskStatus), nullable=False, default=TaskStatus.PENDING)
     org_id = Column(String,nullable=False, index=True)
     created_by = Column(String, nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow())
-    updated_at = Column(DateTime, default=datetime.utcnow())
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow)
 
 
 

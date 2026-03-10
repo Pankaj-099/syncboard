@@ -1,0 +1,187 @@
+/* ── Auth Page ─────────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=DM+Mono:wght@300;400&display=swap');
+
+.auth-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    background: #060a08;
+    font-family: 'DM Mono', monospace;
+}
+
+/* ── Animated Gradient Background ── */
+.auth-bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+}
+
+.auth-bg-gradient {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 80% 60% at 20% 50%, #0d2818 0%, transparent 60%),
+    radial-gradient(ellipse 60% 80% at 80% 20%, #112d1a 0%, transparent 50%),
+    radial-gradient(ellipse 50% 50% at 60% 80%, #0a1f10 0%, transparent 50%),
+    #060a08;
+    animation: gradientShift 8s ease-in-out infinite alternate;
+}
+
+@keyframes gradientShift {
+    0%   { filter: hue-rotate(0deg) brightness(1); }
+    50%  { filter: hue-rotate(15deg) brightness(1.15); }
+    100% { filter: hue-rotate(-10deg) brightness(0.95); }
+}
+
+/* Grid lines */
+.auth-bg-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+            linear-gradient(rgba(92, 158, 100, 0.04) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(92, 158, 100, 0.04) 1px, transparent 1px);
+    background-size: 60px 60px;
+    animation: gridDrift 20s linear infinite;
+}
+
+@keyframes gridDrift {
+    0%   { transform: translateY(0); }
+    100% { transform: translateY(60px); }
+}
+
+/* Floating orbs */
+.auth-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.25;
+    animation: orbFloat 12s ease-in-out infinite;
+}
+
+.auth-orb-1 {
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, #2d6a35, transparent);
+    top: -100px; left: -100px;
+    animation-delay: 0s;
+}
+
+.auth-orb-2 {
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, #1a4a22, transparent);
+    bottom: -80px; right: -80px;
+    animation-delay: -4s;
+}
+
+.auth-orb-3 {
+    width: 200px; height: 200px;
+    background: radial-gradient(circle, #3d7a45, transparent);
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    animation-delay: -8s;
+}
+
+@keyframes orbFloat {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33%       { transform: translate(30px, -20px) scale(1.1); }
+    66%       { transform: translate(-20px, 30px) scale(0.95); }
+}
+
+/* ── Auth Card ── */
+.auth-card {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+    animation: authCardIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes authCardIn {
+    from {
+        opacity: 0;
+        transform: translateY(32px) scale(0.96);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* ── Brand Header ── */
+.auth-brand {
+    text-align: center;
+    animation: authCardIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
+}
+
+.auth-brand-logo {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 52px;
+    height: 52px;
+    background: linear-gradient(135deg, #2d6a35, #1a4a22);
+    border-radius: 14px;
+    margin-bottom: 1rem;
+    box-shadow: 0 0 30px rgba(45, 106, 53, 0.4), 0 0 60px rgba(45, 106, 53, 0.15);
+    animation: logoPulse 3s ease-in-out infinite;
+}
+
+@keyframes logoPulse {
+    0%, 100% { box-shadow: 0 0 30px rgba(45, 106, 53, 0.4), 0 0 60px rgba(45, 106, 53, 0.15); }
+    50%       { box-shadow: 0 0 40px rgba(45, 106, 53, 0.6), 0 0 80px rgba(45, 106, 53, 0.25); }
+}
+
+.auth-brand-logo svg {
+    width: 26px;
+    height: 26px;
+    color: #c5d89d;
+}
+
+.auth-brand-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2rem;
+    font-weight: 300;
+    color: #e8f0e0;
+    letter-spacing: 0.08em;
+    line-height: 1;
+    margin-bottom: 0.35rem;
+}
+
+.auth-brand-tagline {
+    font-size: 0.7rem;
+    color: rgba(197, 216, 157, 0.5);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+}
+
+/* ── Clerk Component Override ── */
+.auth-clerk-wrapper {
+    animation: authCardIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
+}
+
+/* Bottom decoration */
+.auth-footer {
+    font-size: 0.65rem;
+    color: rgba(197, 216, 157, 0.25);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    animation: authCardIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both;
+}
+
+/* Scanline overlay for depth */
+.auth-scanlines {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 2px,
+            rgba(0, 0, 0, 0.03) 2px,
+            rgba(0, 0, 0, 0.03) 4px
+    );
+    pointer-events: none;
+}
