@@ -1,14 +1,24 @@
-
 import uuid
-from datetime import datetime
-from sqlalchemy import Column, String, Text, DateTime, Enum
+from datetime import datetime, timezone
+
+def utcnow():
+    return datetime.now(timezone.utc).replace(tzinfo=None)
+from sqlalchemy import Column, String, Text, DateTime, Enum, Date
 import enum
 from app.core.database import Base
+
 
 class TaskStatus(str, enum.Enum):
     PENDING = "pending"
     STARTED = "started"
     COMPLETED = "completed"
+
+
+class TaskPriority(str, enum.Enum):
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+
 
 class Task(Base):
     __tablename__ = "tasks"
@@ -17,11 +27,11 @@ class Task(Base):
     title = Column(String(255), nullable=False)
     description = Column(Text, nullable=True)
     status = Column(Enum(TaskStatus), nullable=False, default=TaskStatus.PENDING)
-    org_id = Column(String,nullable=False, index=True)
+    priority = Column(String(10), nullable=False, default="medium")
+    org_id = Column(String, nullable=False, index=True)
     created_by = Column(String, nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow)
-
-
-
-
+    assigned_to = Column(String, nullable=True)
+    assigned_to_name = Column(String(255), nullable=True)
+    due_date = Column(Date, nullable=True)
+    created_at = Column(DateTime, default=utcnow)
+    updated_at = Column(DateTime, default=utcnow, onupdate=utcnow)

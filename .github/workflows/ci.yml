@@ -1,0 +1,71 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  backend:
+    name: Backend Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install uv
+        run: pip install uv
+
+      - name: Install dependencies
+        working-directory: taskboard_backend
+        run: uv sync
+
+      - name: Run tests
+        working-directory: taskboard_backend
+        env:
+          DATABASE_URL: sqlite:///./test.db
+          CLERK_SECRET_KEY: test_secret_key
+          CLERK_PUBLISHABLE_KEY: test_publishable_key
+          CLERK_WEBHOOK_SECRET: test_webhook_secret
+          FRONTEND_URL: http://localhost:5173
+          REDIS_ENABLED: false
+          REDIS_URL: redis://localhost:6379
+          RATE_LIMIT_PER_MINUTE: "60"
+        run: uv run pytest tests/ -v --tb=short
+
+  frontend:
+    name: Frontend Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: taskboard_frontend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: taskboard_frontend
+        run: npm ci
+
+      - name: Type check
+        working-directory: taskboard_frontend
+        run: npx tsc --noEmit
+
+      - name: Build
+        working-directory: taskboard_frontend
+        env:
+          VITE_CLERK_PUBLISHABLE_KEY: pk_test_placeholder
+          VITE_API_URL: http://localhost:8000
+        run: npm run build
