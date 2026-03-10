@@ -10,11 +10,11 @@ const STATUS_LABELS: Record<Status, string> = {
 type TaskColumnProps = {
     status: Status
     tasks: Task[]
-    onEdit?: (task: Task) => void
+    onView?: (task: Task) => void
     onDelete?: (taskId: string) => void
 }
 
-function TaskColumn({ status, tasks, onEdit, onDelete }: TaskColumnProps) {
+function TaskColumn({ status, tasks, onView, onDelete }: TaskColumnProps) {
     return (
         <div className="kanban-column">
             <div className={`kanban-column-header kanban-column-header-${status}`}>
@@ -23,7 +23,7 @@ function TaskColumn({ status, tasks, onEdit, onDelete }: TaskColumnProps) {
             </div>
             <div className="kanban-column-body">
                 {tasks.map(task => (
-                    <TaskCard key={task.id} task={task} onEdit={onEdit} onDelete={onDelete} />
+                    <TaskCard key={task.id} task={task} onView={onView} onDelete={onDelete} />
                 ))}
                 {tasks.length === 0 && (
                     <div className="kanban-empty">
