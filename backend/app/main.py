@@ -49,6 +49,6 @@ app.include_router(analytics.router)
 app.include_router(websocket.router)
 
 
-@app.get("/health")
-async def health():
+@app.api_route("/health", methods=["GET", "HEAD"])
+async def health_check():
     return {"status": "ok", "version": "2.0.0"}
