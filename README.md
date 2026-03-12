@@ -64,7 +64,10 @@
 
 ```
 taskboard/
-├── taskboard_backend/
+|── .github/
+|   |── workflows/
+|       |── ci.yml
+├── backend/
 │   ├── app/
 │   │   ├── api/              # Route handlers
 │   │   │   ├── tasks.py      # CRUD + filtering + pagination
@@ -88,7 +91,7 @@ taskboard/
 │   ├── docker-compose.yml
 │   └── pyproject.toml
 │
-└── taskboard_frontend/
+└── frontend/
     └── src/
         ├── components/
         │   ├── KanbanBoard.tsx   # Drag and drop board
