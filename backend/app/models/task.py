@@ -3,7 +3,8 @@ from datetime import datetime, timezone
 
 def utcnow():
     return datetime.now(timezone.utc).replace(tzinfo=None)
-from sqlalchemy import Column, String, Text, DateTime, Enum, Date
+
+from sqlalchemy import Column, String, Text, DateTime, Enum, Date, Numeric, Boolean
 import enum
 from app.core.database import Base
 
@@ -18,6 +19,12 @@ class TaskPriority(str, enum.Enum):
     LOW = "low"
     MEDIUM = "medium"
     HIGH = "high"
+
+
+class RecordType(str, enum.Enum):
+    INCOME = "income"
+    EXPENSE = "expense"
+    NEUTRAL = "neutral"  # for tasks that aren't financial
 
 
 class Task(Base):
@@ -35,3 +42,12 @@ class Task(Base):
     due_date = Column(Date, nullable=True)
     created_at = Column(DateTime, default=utcnow)
     updated_at = Column(DateTime, default=utcnow, onupdate=utcnow)
+
+    # --- Finance fields ---
+    amount = Column(Numeric(12, 2), nullable=True)           # e.g. 1500.00
+    record_type = Column(Enum(RecordType), nullable=True, default=RecordType.NEUTRAL)
+    category = Column(String(100), nullable=True)            # e.g. "Salary", "Rent"
+
+    # --- Soft delete ---
+    is_deleted = Column(Boolean, nullable=False, default=False)
+    deleted_at = Column(DateTime, nullable=True)
