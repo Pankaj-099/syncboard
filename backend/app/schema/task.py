@@ -1,7 +1,8 @@
 from datetime import datetime, date
-from pydantic import BaseModel
+from decimal import Decimal
+from pydantic import BaseModel, field_validator
 from typing import Optional
-from app.models.task import TaskStatus, TaskPriority
+from app.models.task import TaskStatus, TaskPriority, RecordType
 
 
 class TaskCreate(BaseModel):
@@ -13,6 +14,18 @@ class TaskCreate(BaseModel):
     assigned_to_name: Optional[str] = None
     due_date: Optional[date] = None
 
+    # Finance fields
+    amount: Optional[Decimal] = None
+    record_type: Optional[RecordType] = RecordType.NEUTRAL
+    category: Optional[str] = None
+
+    @field_validator("amount")
+    @classmethod
+    def amount_must_be_positive(cls, v):
+        if v is not None and v < 0:
+            raise ValueError("Amount must be a positive number")
+        return v
+
 
 class TaskUpdate(BaseModel):
     title: Optional[str] = None
@@ -22,6 +35,18 @@ class TaskUpdate(BaseModel):
     assigned_to: Optional[str] = None
     assigned_to_name: Optional[str] = None
     due_date: Optional[date] = None
+
+    # Finance fields
+    amount: Optional[Decimal] = None
+    record_type: Optional[RecordType] = None
+    category: Optional[str] = None
+
+    @field_validator("amount")
+    @classmethod
+    def amount_must_be_positive(cls, v):
+        if v is not None and v < 0:
+            raise ValueError("Amount must be a positive number")
+        return v
 
 
 class TaskResponse(BaseModel):
@@ -37,6 +62,15 @@ class TaskResponse(BaseModel):
     due_date: Optional[date] = None
     created_at: datetime
     updated_at: datetime
+
+    # Finance fields
+    amount: Optional[Decimal] = None
+    record_type: Optional[RecordType] = None
+    category: Optional[str] = None
+
+    # Soft delete (expose deleted_at so audit log can show it)
+    is_deleted: bool = False
+    deleted_at: Optional[datetime] = None
 
     class Config:
         from_attributes = True
