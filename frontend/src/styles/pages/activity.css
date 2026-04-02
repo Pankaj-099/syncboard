@@ -98,3 +98,23 @@
     padding-top: var(--sp-6);
     border-top: 1px solid var(--border);
 }
+
+/* ══════════════════════════════════════════
+   MOBILE RESPONSIVE — Activity
+   ══════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .activity-container {
+    padding: var(--sp-6) var(--sp-4);
+  }
+
+  .activity-title { font-size: var(--text-2xl); }
+
+  .activity-feed::before { left: 15px; }
+
+  .activity-icon { width: 32px; height: 32px; font-size: 0.75rem; }
+
+  .activity-pagination {
+    flex-direction: column;
+    gap: var(--sp-3);
+  }
+}

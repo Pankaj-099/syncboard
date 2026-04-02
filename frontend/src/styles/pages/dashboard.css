@@ -197,3 +197,56 @@
 .pagination-btn {
   min-width: 110px;
 }
+
+/* ══════════════════════════════════════════
+   MOBILE RESPONSIVE — Dashboard
+   ══════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .dashboard-container {
+    padding: var(--sp-6) var(--sp-4);
+  }
+
+  .dashboard-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--sp-3);
+  }
+
+  .dashboard-title { font-size: var(--text-2xl); }
+
+  .filter-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--sp-2);
+  }
+
+  .filter-search-wrapper {
+    max-width: 100%;
+    min-width: unset;
+  }
+
+  .filter-select { width: 100%; }
+
+  .filter-count { margin-left: 0; }
+
+  .kanban-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--sp-3);
+  }
+
+  .kanban-header-left {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--sp-2);
+  }
+
+  .kanban-stats { flex-wrap: wrap; }
+
+  .pagination-bar {
+    flex-direction: column;
+    gap: var(--sp-3);
+  }
+
+  .pagination-btn { width: 100%; }
+}

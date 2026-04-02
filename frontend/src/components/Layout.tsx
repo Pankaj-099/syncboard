@@ -11,6 +11,7 @@ function Layout(): JSX.Element {
         return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"
     })
     const [scrolled, setScrolled] = useState(false)
+    const [menuOpen, setMenuOpen] = useState(false)
 
     useEffect(() => {
         document.documentElement.setAttribute("data-theme", theme)
@@ -22,6 +23,8 @@ function Layout(): JSX.Element {
         window.addEventListener("scroll", onScroll)
         return () => window.removeEventListener("scroll", onScroll)
     }, [])
+
+    useEffect(() => { setMenuOpen(false) }, [location.pathname])
 
     const isActive = (path: string) => location.pathname === path ? "nav-link nav-link-active" : "nav-link"
 
@@ -37,7 +40,18 @@ function Layout(): JSX.Element {
                         TaskBoard
                     </Link>
 
-                    <div className="nav-links">
+                    <button
+                        className={`nav-hamburger ${menuOpen ? "open" : ""}`}
+                        onClick={() => setMenuOpen(o => !o)}
+                        aria-label="Toggle menu"
+                        aria-expanded={menuOpen}
+                    >
+                        <span />
+                        <span />
+                        <span />
+                    </button>
+
+                    <div className={`nav-links ${menuOpen ? "open" : ""}`}>
                         <Link to="/pricing" className={isActive("/pricing")}>Pricing</Link>
 
                         <SignedOut>

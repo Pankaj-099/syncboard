@@ -128,3 +128,30 @@
 .member-table-row:hover { background: var(--accent-light); }
 .member-name { display: flex; align-items: center; gap: var(--sp-3); font-weight: 500; }
 .member-rate { font-weight: 600; color: var(--text-secondary); }
+
+/* ══════════════════════════════════════════
+   MOBILE RESPONSIVE — Analytics
+   ══════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .analytics-container {
+    padding: var(--sp-6) var(--sp-4);
+  }
+
+  .analytics-title { font-size: var(--text-2xl); }
+
+  .member-table-header,
+  .member-table-row {
+    grid-template-columns: 2fr 1fr 1fr;
+  }
+
+  /* hide completion rate column on very small screens */
+  .member-table-header > :last-child,
+  .member-table-row > :last-child {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .stat-grid { grid-template-columns: 1fr 1fr; }
+  .analytics-grid { grid-template-columns: 1fr; }
+}

@@ -371,3 +371,36 @@
   white-space: nowrap;
   align-self: flex-end;
 }
+
+/* ══════════════════════════════════════════
+   MOBILE RESPONSIVE — Modal
+   ══════════════════════════════════════════ */
+@media (max-width: 640px) {
+  .modal-overlay {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .modal {
+    max-width: 100%;
+    border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
+    max-height: 92vh;
+  }
+
+  .modal-detail {
+    max-width: 100%;
+    border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
+    max-height: 92vh;
+  }
+
+  .detail-meta {
+    flex-direction: column;
+    gap: var(--sp-3);
+  }
+
+  .form-actions {
+    flex-direction: column-reverse;
+  }
+
+  .form-actions .btn { width: 100%; justify-content: center; }
+}
