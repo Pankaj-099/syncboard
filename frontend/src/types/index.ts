@@ -1,5 +1,6 @@
-export type Status   = "pending" | "started" | "completed"
-export type Priority = "low" | "medium" | "high"
+export type Status     = "pending" | "started" | "completed"
+export type Priority   = "low" | "medium" | "high"
+export type RecordType = "income" | "expense" | "neutral"
 
 export type Task = {
     id: string
@@ -14,6 +15,13 @@ export type Task = {
     due_date?: string | null
     created_at: string
     updated_at: string
+    // Finance fields
+    amount?: number | null
+    record_type?: RecordType | null
+    category?: string | null
+    // Soft delete
+    is_deleted?: boolean
+    deleted_at?: string | null
 }
 
 export type TaskCreate = {
@@ -24,6 +32,10 @@ export type TaskCreate = {
     assigned_to?: string | null
     assigned_to_name?: string | null
     due_date?: string | null
+    // Finance fields
+    amount?: number | null
+    record_type?: RecordType | null
+    category?: string | null
 }
 
 export type TaskUpdate = Partial<TaskCreate>
@@ -72,6 +84,26 @@ export type MemberStat = {
     completed: number
 }
 
+export type CategoryTotal = {
+    category: string
+    total: number
+}
+
+export type MonthlyTrend = {
+    month: string
+    income: number
+    expense: number
+    net: number
+}
+
+export type FinancialSummary = {
+    total_income: number
+    total_expense: number
+    net_balance: number
+    by_category: CategoryTotal[]
+    monthly_trends: MonthlyTrend[]
+}
+
 export type Analytics = {
     total_tasks: number
     completed_tasks: number
@@ -80,6 +112,7 @@ export type Analytics = {
     by_status: StatusCount[]
     by_priority: PriorityCount[]
     by_member: MemberStat[]
+    financial: FinancialSummary
 }
 
 export type WSEvent = {

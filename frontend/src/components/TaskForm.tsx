@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import React from "react"
-import type { Task, Status, Priority, TaskCreate } from "../types"
+import type { Task, Status, Priority, RecordType, TaskCreate } from "../types"
 
 type OrgMember = { id: string; name: string }
 
@@ -19,6 +19,9 @@ function TaskForm({ task, onSubmit, onCancel, members = [] }: TaskFormProps) {
     const [assignedTo, setAssignedTo]     = useState("")
     const [assignedToName, setAssignedToName] = useState("")
     const [dueDate, setDueDate]           = useState("")
+    const [amount, setAmount]             = useState("")
+    const [recordType, setRecordType]     = useState<RecordType>("neutral")
+    const [category, setCategory]         = useState("")
     const [loading, setLoading]           = useState(false)
 
     const isEditing = !!task
@@ -32,9 +35,13 @@ function TaskForm({ task, onSubmit, onCancel, members = [] }: TaskFormProps) {
             setAssignedTo(task.assigned_to || "")
             setAssignedToName(task.assigned_to_name || "")
             setDueDate(task.due_date || "")
+            setAmount(task.amount != null ? String(task.amount) : "")
+            setRecordType(task.record_type || "neutral")
+            setCategory(task.category || "")
         } else {
             setTitle(""); setDescription(""); setStatus("pending")
-            setPriority("medium"); setAssignedTo(""); setAssignedToName(""); setDueDate("")
+            setPriority("medium"); setAssignedTo(""); setAssignedToName("")
+            setDueDate(""); setAmount(""); setRecordType("neutral"); setCategory("")
         }
     }, [task])
 
@@ -58,6 +65,9 @@ function TaskForm({ task, onSubmit, onCancel, members = [] }: TaskFormProps) {
                 assigned_to: assignedTo || null,
                 assigned_to_name: assignedToName || null,
                 due_date: dueDate || null,
+                amount: amount ? parseFloat(amount) : null,
+                record_type: recordType,
+                category: category.trim() || null,
             })
         } finally {
             setLoading(false)
@@ -68,7 +78,7 @@ function TaskForm({ task, onSubmit, onCancel, members = [] }: TaskFormProps) {
         <div className="modal-overlay" onClick={onCancel}>
             <div className="modal" onClick={(e) => e.stopPropagation()}>
                 <div className="modal-header">
-                    <h2 className="modal-title">{isEditing ? "Edit Task" : "New Task"}</h2>
+                    <h2 className="modal-title">{isEditing ? "Edit Record" : "New Record"}</h2>
                     <button className="modal-close" onClick={onCancel} aria-label="Close" disabled={loading}>✕</button>
                 </div>
 
@@ -85,6 +95,33 @@ function TaskForm({ task, onSubmit, onCancel, members = [] }: TaskFormProps) {
                         <textarea id="description" className="form-textarea"
                                   value={description} onChange={e => setDescription(e.target.value)}
                                   placeholder="Add more details (optional)" disabled={loading} />
+                    </div>
+
+                    {/* Finance fields */}
+                    <div className="form-row">
+                        <div className="form-group">
+                            <label className="form-label" htmlFor="record_type">Type</label>
+                            <select id="record_type" className="form-select"
+                                    value={recordType} onChange={e => setRecordType(e.target.value as RecordType)} disabled={loading}>
+                                <option value="neutral">Neutral</option>
+                                <option value="income">Income</option>
+                                <option value="expense">Expense</option>
+                            </select>
+                        </div>
+
+                        <div className="form-group">
+                            <label className="form-label" htmlFor="amount">Amount</label>
+                            <input id="amount" type="number" className="form-input"
+                                   value={amount} onChange={e => setAmount(e.target.value)}
+                                   placeholder="0.00" min="0" step="0.01" disabled={loading} />
+                        </div>
+                    </div>
+
+                    <div className="form-group">
+                        <label className="form-label" htmlFor="category">Category</label>
+                        <input id="category" type="text" className="form-input"
+                               value={category} onChange={e => setCategory(e.target.value)}
+                               placeholder="e.g. Salary, Rent, Marketing" disabled={loading} />
                     </div>
 
                     <div className="form-row">
@@ -147,7 +184,7 @@ function TaskForm({ task, onSubmit, onCancel, members = [] }: TaskFormProps) {
                                     {isEditing ? "Saving…" : "Creating…"}
                                 </>
                             ) : (
-                                isEditing ? "Save Changes" : "Create Task"
+                                isEditing ? "Save Changes" : "Create Record"
                             )}
                         </button>
                     </div>

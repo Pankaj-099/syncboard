@@ -1,10 +1,16 @@
 import React, { useState } from "react"
-import type { Task, Priority } from "../types"
+import type { Task, Priority, RecordType } from "../types"
 
 const PRIORITY_CONFIG: Record<Priority, { label: string; className: string }> = {
     low:    { label: "Low",    className: "priority-low" },
     medium: { label: "Medium", className: "priority-medium" },
     high:   { label: "High",   className: "priority-high" },
+}
+
+const RECORD_TYPE_CONFIG: Record<RecordType, { label: string; className: string }> = {
+    income:  { label: "Income",  className: "record-type-income" },
+    expense: { label: "Expense", className: "record-type-expense" },
+    neutral: { label: "",        className: "" },
 }
 
 type TaskCardProps = {
@@ -22,20 +28,22 @@ function formatDate(dateStr: string): string {
     return new Date(dateStr).toLocaleDateString("en-US", { month: "short", day: "numeric" })
 }
 
+function formatAmount(amount: number): string {
+    return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 0 }).format(amount)
+}
+
 function TaskCard({ task, onView, onDelete }: TaskCardProps) {
     const [deleting, setDeleting] = useState(false)
-    const overdue  = isOverdue(task.due_date, task.status)
-    const priority = PRIORITY_CONFIG[task.priority]
+    const overdue    = isOverdue(task.due_date, task.status)
+    const priority   = PRIORITY_CONFIG[task.priority]
+    const recordType = task.record_type ? RECORD_TYPE_CONFIG[task.record_type] : null
 
     async function handleDelete(e: React.MouseEvent) {
         e.stopPropagation()
         if (deleting) return
         setDeleting(true)
-        try {
-            await onDelete!(task.id)
-        } finally {
-            setDeleting(false)
-        }
+        try { await onDelete!(task.id) }
+        finally { setDeleting(false) }
     }
 
     return (
@@ -53,7 +61,7 @@ function TaskCard({ task, onView, onDelete }: TaskCardProps) {
                             className={`task-card-btn task-card-btn-delete ${deleting ? "task-card-btn-deleting" : ""}`}
                             onClick={handleDelete}
                             disabled={deleting}
-                            title="Delete Task"
+                            title="Delete"
                         >
                             {deleting ? <span className="btn-spinner btn-spinner-sm" /> : "✕"}
                         </button>
@@ -62,6 +70,24 @@ function TaskCard({ task, onView, onDelete }: TaskCardProps) {
 
                 {task.description && (
                     <p className="task-card-description">{task.description}</p>
+                )}
+
+                {/* Finance row — amount + type badge */}
+                {task.amount != null && task.amount > 0 && (
+                    <div className="task-card-finance">
+                        <span className={`task-card-amount ${recordType?.className || ""}`}>
+                            {task.record_type === "expense" ? "−" : task.record_type === "income" ? "+" : ""}
+                            {formatAmount(task.amount)}
+                        </span>
+                        {recordType && recordType.label && (
+                            <span className={`task-card-type-badge ${recordType.className}`}>
+                                {recordType.label}
+                            </span>
+                        )}
+                        {task.category && (
+                            <span className="task-card-category">{task.category}</span>
+                        )}
+                    </div>
                 )}
 
                 <div className="task-card-meta">
