@@ -147,7 +147,7 @@ function AnalyticsPage() {
                                 <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
                                 <XAxis dataKey="month" tick={{ fontSize: 12 }} />
                                 <YAxis tick={{ fontSize: 12 }} tickFormatter={v => `$${v}`} />
-                                <Tooltip formatter={(v: number) => formatCurrency(v)} />
+                                <Tooltip formatter={(v) => formatCurrency(Number(v))} />
                                 <Legend />
                                 <Line type="monotone" dataKey="Income"  stroke="#5a6b47" strokeWidth={2} dot={false} />
                                 <Line type="monotone" dataKey="Expense" stroke="#c0392b" strokeWidth={2} dot={false} />
