@@ -109,7 +109,6 @@ function SignUpPage() {
                         routing="path"
                         path="/sign-up"
                         signInUrl="/sign-in"
-                        forceRedirectUrl="/"
                         appearance={clerkAppearance}
                     />
                 </div>
