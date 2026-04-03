@@ -1,8 +1,12 @@
 import { Link } from "react-router-dom";
-import { SignedIn, SignedOut, useOrganization, CreateOrganization } from "@clerk/clerk-react";
+import { SignedIn, SignedOut, useOrganization, useUser, CreateOrganization } from "@clerk/clerk-react";
 
 function HomePage() {
     const { organization } = useOrganization();
+    const { isLoaded } = useUser();
+
+    // Wait for Clerk session to load — prevents SignedOut flicker after signup
+    if (!isLoaded) return null;
 
     return (
         <div className="home-container">
