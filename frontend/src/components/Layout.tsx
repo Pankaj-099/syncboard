@@ -1,9 +1,10 @@
 import { type JSX, useEffect, useState } from "react"
 import { Outlet, Link, useLocation } from "react-router-dom"
-import { SignedIn, SignedOut, UserButton, OrganizationSwitcher, useOrganization } from "@clerk/clerk-react"
+import { SignedIn, SignedOut, UserButton, OrganizationSwitcher, useOrganization, useUser } from "@clerk/clerk-react"
 
 function Layout(): JSX.Element {
     const { organization } = useOrganization()
+    const { isLoaded } = useUser()
     const location = useLocation()
     const [theme, setTheme] = useState<"light" | "dark">(() => {
         const saved = localStorage.getItem("tb-theme")
@@ -54,37 +55,42 @@ function Layout(): JSX.Element {
                     <div className={`nav-links ${menuOpen ? "open" : ""}`}>
                         <Link to="/pricing" className={isActive("/pricing")}>Pricing</Link>
 
-                        <SignedOut>
-                            <Link to="/sign-in" className="nav-link">Sign In</Link>
-                            <Link to="/sign-up" className="btn btn-primary">Get Started</Link>
-                        </SignedOut>
+                        {/* Only render auth links after Clerk has loaded — prevents flicker */}
+                        {isLoaded && (
+                            <>
+                                <SignedOut>
+                                    <Link to="/sign-in" className="nav-link">Sign In</Link>
+                                    <Link to="/sign-up" className="btn btn-primary">Get Started</Link>
+                                </SignedOut>
 
-                        <SignedIn>
-                            {organization && (
-                                <>
-                                    <Link to="/dashboard" className={isActive("/dashboard")}>Dashboard</Link>
-                                    <Link to="/analytics" className={isActive("/analytics")}>Analytics</Link>
-                                    <Link to="/activity"  className={isActive("/activity")}>Activity</Link>
-                                </>
-                            )}
-                            <OrganizationSwitcher
-                                hidePersonal
-                                afterCreateOrganizationUrl="/dashboard"
-                                afterSelectOrganizationUrl="/dashboard"
-                                createOrganizationMode="modal"
-                                appearance={{
-                                    elements: {
-                                        organizationSwitcherTrigger: {
-                                            borderRadius: "var(--radius-lg)",
-                                            padding: "6px 10px",
-                                            border: "1px solid var(--border)",
-                                            background: "var(--bg-card)",
-                                        }
-                                    }
-                                }}
-                            />
-                            <UserButton appearance={{ elements: { avatarBox: { width: 34, height: 34 } } }} />
-                        </SignedIn>
+                                <SignedIn>
+                                    {organization && (
+                                        <>
+                                            <Link to="/dashboard" className={isActive("/dashboard")}>Dashboard</Link>
+                                            <Link to="/analytics" className={isActive("/analytics")}>Analytics</Link>
+                                            <Link to="/activity"  className={isActive("/activity")}>Activity</Link>
+                                        </>
+                                    )}
+                                    <OrganizationSwitcher
+                                        hidePersonal
+                                        afterCreateOrganizationUrl="/dashboard"
+                                        afterSelectOrganizationUrl="/dashboard"
+                                        createOrganizationMode="modal"
+                                        appearance={{
+                                            elements: {
+                                                organizationSwitcherTrigger: {
+                                                    borderRadius: "var(--radius-lg)",
+                                                    padding: "6px 10px",
+                                                    border: "1px solid var(--border)",
+                                                    background: "var(--bg-card)",
+                                                }
+                                            }
+                                        }}
+                                    />
+                                    <UserButton appearance={{ elements: { avatarBox: { width: 34, height: 34 } } }} />
+                                </SignedIn>
+                            </>
+                        )}
 
                         <button className="theme-toggle" onClick={() => setTheme(t => t === "light" ? "dark" : "light")}
                             title="Toggle theme" aria-label="Toggle theme">
