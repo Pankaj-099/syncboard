@@ -1,4 +1,4 @@
-# TaskBoard
+# SyncBoard
 
 > B2B SaaS Kanban application for team task management — built with FastAPI, React, PostgreSQL, Redis, and Clerk.
 
@@ -21,7 +21,7 @@
 |---|---|
 | Creating and managing users | Handled via Clerk — users are provisioned on signup and synced via webhooks |
 | Assigning roles | Clerk organization roles mapped to `viewer`, `analyst`, `admin` |
-| Managing user status (active/inactive) | Clerk manages user lifecycle; webhook events sync membership changes to the backend |
+| Managing user status (active/inactive) | `/api/users/{id}/status` — PATCH endpoint to activate or deactivate any member |
 | Restricting actions based on roles | JWT claims verified server-side on every request — no client-side trust |
 
 **Role mapping:**
@@ -137,6 +137,9 @@ Implementation pattern: FastAPI `Depends()` — clean, testable, and applied per
 | Audit logs | ✅ Field-level diffs on every mutation with timestamps |
 | Real-time updates | ✅ WebSockets scoped per `org_id` |
 | CI pipeline | ✅ GitHub Actions runs tests on every push |
+| User status management | ✅ Activate/deactivate users via `/api/users/{id}/status` |
+| Team management UI | ✅ Full team page with role and status controls |
+| Mobile responsive | ✅ Hamburger nav, stacked layouts, bottom-sheet modals |
 
 ---
 
@@ -147,6 +150,7 @@ Implementation pattern: FastAPI `Depends()` — clean, testable, and applied per
 3. Organization-level isolation is the multi-tenancy boundary — all records, analytics, and audit logs are scoped to `org_id`.
 4. Redis is optional — the app falls back to direct DB reads if Redis is unavailable, with no change in behavior.
 5. Soft delete is used throughout — no record is permanently removed, preserving audit trail integrity.
+6. User sync is event-driven — users are created/updated/deactivated in the DB automatically via Clerk webhook events.
 
 ---
 
@@ -165,6 +169,18 @@ Implementation pattern: FastAPI `Depends()` — clean, testable, and applied per
 - JWT claims verified on every request — no client-side trust
 - Clerk webhook integration for org membership sync
 
+**Team Management**
+- `/api/users` — list all org members with role and status
+- `/api/users/{id}/status` — activate or deactivate a user (admin only)
+- `/api/users/{id}/role` — change a user's role (admin only)
+- Users automatically synced from Clerk via `organizationMembership` webhook events
+- Team page on frontend with role badges, status badges, and inline controls
+
+**Financial Records**
+- Records support `amount`, `record_type` (income/expense/neutral), and `category`
+- Amount validated as positive number via Pydantic field validator
+- Filter records by type, category, priority, assignee, or free-text search
+
 **Performance**
 - Redis caching on record list with automatic cache invalidation
 - Graceful Redis fallback — app works normally if Redis is unavailable
@@ -182,6 +198,7 @@ Implementation pattern: FastAPI `Depends()` — clean, testable, and applied per
 - Rate limiting with slowapi
 - React ErrorBoundary for graceful crash recovery
 - Skeleton loaders on all async views
+- Mobile responsive — hamburger nav, stacked layouts, bottom-sheet modals on mobile
 
 ---
 
@@ -217,8 +234,9 @@ taskboard/
 │   │   │   ├── tasks.py      # CRUD + filtering + pagination + soft delete
 │   │   │   ├── analytics.py  # Financial summary + aggregated stats
 │   │   │   ├── audit_logs.py # Activity feed
+│   │   │   ├── users.py      # User management — status + role updates
 │   │   │   ├── websocket.py  # WS connection manager
-│   │   │   └── webhooks.py   # Clerk org membership webhooks
+│   │   │   └── webhooks.py   # Clerk org membership + billing webhooks
 │   │   ├── core/
 │   │   │   ├── auth.py       # Clerk JWT verification + RBAC
 │   │   │   ├── config.py     # Environment settings
@@ -226,6 +244,10 @@ taskboard/
 │   │   │   ├── redis_client.py
 │   │   │   └── websocket_manager.py
 │   │   ├── models/           # SQLAlchemy ORM models
+│   │   │   ├── task.py       # Task + RecordType + soft delete
+│   │   │   ├── user.py       # User + UserRole + is_active
+│   │   │   ├── audit_log.py
+│   │   │   └── comment.py
 │   │   ├── schema/           # Pydantic request/response schemas
 │   │   └── services/
 │   │       └── audit_service.py  # Field-level diff logging
@@ -239,14 +261,16 @@ taskboard/
     └── src/
         ├── components/
         │   ├── KanbanBoard.tsx   # Drag and drop board
-        │   ├── TaskCard.tsx      # Card with amount, priority, assignee, due date
-        │   ├── TaskForm.tsx      # Create/edit modal
+        │   ├── TaskCard.tsx      # Card with amount, type, category, priority
+        │   ├── TaskForm.tsx      # Create/edit modal with finance fields
+        │   ├── Layout.tsx        # Nav with hamburger menu for mobile
         │   ├── Skeleton.tsx      # Loading skeletons
         │   └── ErrorBoundary.tsx
         ├── pages/
         │   ├── DashboardPage.tsx # Kanban + filters + pagination
         │   ├── AnalyticsPage.tsx # Financial summary + Recharts charts
-        │   └── ActivityPage.tsx  # Audit log feed
+        │   ├── ActivityPage.tsx  # Audit log feed
+        │   └── UsersPage.tsx     # Team management — roles + status
         ├── hooks/
         │   └── useWebSocket.ts   # Auto-reconnecting WS hook
         └── services/
@@ -373,6 +397,9 @@ Full interactive documentation is available at `http://localhost:8000/docs` when
 | `DELETE` | `/api/tasks/{id}` | Soft delete a record |
 | `GET` | `/api/analytics` | Financial summary + org-level analytics |
 | `GET` | `/api/audit-logs` | Paginated activity feed |
+| `GET` | `/api/users` | List all org members |
+| `PATCH` | `/api/users/{id}/status` | Activate or deactivate a user (admin only) |
+| `PATCH` | `/api/users/{id}/role` | Update a user's role (admin only) |
 | `WS` | `/ws/{org_id}` | WebSocket for live updates |
 | `GET` | `/health` | Health check |
 | `POST` | `/api/tasks/{id}/comments` | Comment on a record |
@@ -440,6 +467,12 @@ Broadcasts are scoped to `org_id` so users only receive events relevant to their
 **Why soft delete?**
 Hard deletes destroy audit trail integrity. Soft delete preserves the full history of every record mutation, which is essential for a finance system where data lineage matters.
 
+**Why event-driven user sync?**
+Instead of polling Clerk's API for user data, the backend listens to `organizationMembership` webhook events. This keeps the DB in sync in real time with zero polling overhead.
+
+**Why pure functions for analytics?**
+`_build_analytics` and `_build_financial_summary` are stateless pure functions that take a list of records and return aggregated data. This makes them independently testable and easy to cache.
+
 ---
 
 ## Deployment
@@ -451,3 +484,4 @@ Hard deletes destroy audit trail integrity. Soft delete preserves the full histo
 | Database | PostgreSQL |
 | Redis | Upstash (serverless Redis — no Docker needed) |
 | Auth | Clerk |
+| CI/CD | GitHub Actions |
