@@ -404,6 +404,16 @@ Full interactive documentation is available at `http://localhost:8000/docs` when
 | `GET` | `/health` | Health check |
 | `POST` | `/api/tasks/{id}/comments` | Comment on a record |
 
+> **Testing the API:**
+> All endpoints require a Clerk JWT token. To test via Swagger UI:
+> 1. Sign in at the [live demo](https://taskboard-frontend-puce.vercel.app) using Google
+> 2. Open browser DevTools → Network tab
+> 3. Click any action on the dashboard
+> 4. Find any request to the backend → copy the `Authorization: Bearer <token>` header value
+> 5. Go to [API Docs](https://taskboard-backend-ecxj.onrender.com/docs) → click **Authorize** → paste the token
+>
+> All endpoint schemas, request bodies, and response formats are visible in the docs without authentication.
+
 ---
 
 ## Database Migrations

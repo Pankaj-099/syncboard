@@ -1,10 +1,13 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.security import HTTPBearer
 
 from app.core.config import settings
 from app.core.database import engine, Base
 from app.models import task, audit_log, comment, user  # added user model
 from app.api import tasks, webhooks, audit_logs, analytics, websocket, comments, users  # added users
+
+security = HTTPBearer()
 
 # Create all tables
 Base.metadata.create_all(bind=engine)
@@ -15,6 +18,7 @@ app = FastAPI(
     version="2.0.0",
     docs_url="/docs",
     redoc_url="/redoc",
+    swagger_ui_parameters={"persistAuthorization": True},
 )
 
 # ── CORS ──
