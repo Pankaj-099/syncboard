@@ -6,6 +6,7 @@ import DashboardPage from "./pages/DashboardPage"
 import PricingPage from "./pages/PricingPage"
 import AnalyticsPage from "./pages/AnalyticsPage"
 import ActivityPage from "./pages/ActivityPage"
+import UsersPage from "./pages/UsersPage"
 import SignUpPage from "./pages/SignUp"
 import SignInPage from "./pages/SignIn"
 import ErrorBoundary from "./components/ErrorBoundary"
@@ -31,10 +32,11 @@ function App() {
                 {/* App pages — with layout/navbar */}
                 <Route path="/" element={<Layout />}>
                     <Route index element={<HomePage />} />
-                    <Route path="pricing" element={<PricingPage />} />
-                    <Route path="dashboard"  element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
-                    <Route path="analytics"  element={<ProtectedRoute><AnalyticsPage /></ProtectedRoute>} />
-                    <Route path="activity"   element={<ProtectedRoute><ActivityPage /></ProtectedRoute>} />
+                    <Route path="pricing"   element={<PricingPage />} />
+                    <Route path="dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
+                    <Route path="analytics" element={<ProtectedRoute><AnalyticsPage /></ProtectedRoute>} />
+                    <Route path="activity"  element={<ProtectedRoute><ActivityPage /></ProtectedRoute>} />
+                    <Route path="team"      element={<ProtectedRoute><UsersPage /></ProtectedRoute>} />
                 </Route>
             </Routes>
         </ErrorBoundary>

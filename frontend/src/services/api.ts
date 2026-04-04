@@ -120,3 +120,32 @@ export async function deleteComment(
         method: "DELETE",
     })
 }
+
+// ── Users ──
+export async function getUsers(
+    getToken: () => Promise<string | null>
+) {
+    return fetchWithAuth("/api/users", getToken)
+}
+
+export async function updateUserStatus(
+    getToken: () => Promise<string | null>,
+    userId: string,
+    isActive: boolean
+) {
+    return fetchWithAuth(`/api/users/${userId}/status`, getToken, {
+        method: "PATCH",
+        body: JSON.stringify({ is_active: isActive }),
+    })
+}
+
+export async function updateUserRole(
+    getToken: () => Promise<string | null>,
+    userId: string,
+    role: string
+) {
+    return fetchWithAuth(`/api/users/${userId}/role`, getToken, {
+        method: "PATCH",
+        body: JSON.stringify({ role }),
+    })
+}

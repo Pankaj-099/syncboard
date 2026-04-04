@@ -121,3 +121,14 @@ export type WSEvent = {
     user_name?: string
     timestamp: string
 }
+
+export type OrgUser = {
+    id: string
+    org_id: string
+    email?: string | null
+    full_name?: string | null
+    role: "viewer" | "analyst" | "admin"
+    is_active: boolean
+    created_at: string
+    updated_at: string
+}
