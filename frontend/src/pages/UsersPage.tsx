@@ -5,29 +5,30 @@ import type { OrgUser } from "../types"
 import "../styles/pages/users.css"
 
 const ROLE_CONFIG = {
-    admin:   { label: "Admin",   className: "user-role-admin" },
-    analyst: { label: "Analyst", className: "user-role-analyst" },
-    viewer:  { label: "Viewer",  className: "user-role-viewer" },
+    ADMIN:   { label: "Admin",   className: "user-role-admin" },
+    ANALYST: { label: "Analyst", className: "user-role-analyst" },
+    VIEWER:  { label: "Viewer",  className: "user-role-viewer" },
 }
 
 function UsersPage() {
     const { getToken } = useAuth()
     const { organization } = useOrganization()
-    const [users, setUsers]     = useState<OrgUser[]>([])
-    const [loading, setLoading] = useState(true)
-    const [error, setError]     = useState<string | null>(null)
+    const [users, setUsers]       = useState<OrgUser[]>([])
+    const [loading, setLoading]   = useState(true)
+    const [error, setError]       = useState<string | null>(null)
     const [updating, setUpdating] = useState<string | null>(null)
 
     useEffect(() => {
         if (!organization) { setLoading(false); return }
         fetchWithAuth("/api/users", getToken)
             .then(setUsers)
-            .catch(e => setError(e.message))
+            .catch(e => setError(e.message || "Failed to load team members"))
             .finally(() => setLoading(false))
     }, [organization?.id])
 
     async function toggleStatus(userId: string, isActive: boolean) {
         setUpdating(userId)
+        setError(null)
         try {
             const updated = await fetchWithAuth(`/api/users/${userId}/status`, getToken, {
                 method: "PATCH",
@@ -35,7 +36,7 @@ function UsersPage() {
             })
             setUsers(prev => prev.map(u => u.id === userId ? updated : u))
         } catch (e: any) {
-            setError(e.message)
+            setError(e.message || "Failed to update status")
         } finally {
             setUpdating(null)
         }
@@ -43,6 +44,7 @@ function UsersPage() {
 
     async function changeRole(userId: string, role: string) {
         setUpdating(userId)
+        setError(null)
         try {
             const updated = await fetchWithAuth(`/api/users/${userId}/role`, getToken, {
                 method: "PATCH",
@@ -50,7 +52,7 @@ function UsersPage() {
             })
             setUsers(prev => prev.map(u => u.id === userId ? updated : u))
         } catch (e: any) {
-            setError(e.message)
+            setError(e.message || "Failed to update role")
         } finally {
             setUpdating(null)
         }
@@ -71,7 +73,9 @@ function UsersPage() {
             <div className="users-header">
                 <div>
                     <h1 className="users-title">Team</h1>
-                    <p className="users-subtitle">{organization.name} · {users.length} member{users.length !== 1 ? "s" : ""}</p>
+                    <p className="users-subtitle">
+                        {organization.name} · {users.length} member{users.length !== 1 ? "s" : ""}
+                    </p>
                 </div>
             </div>
 
@@ -82,20 +86,19 @@ function UsersPage() {
             )}
 
             {loading ? (
-                <div className="users-loading">
-                    <div className="users-skeleton">
-                        {[1,2,3].map(i => <div key={i} className="user-row-skeleton" />)}
-                    </div>
+                <div className="users-skeleton">
+                    {[1, 2, 3].map(i => <div key={i} className="user-row-skeleton" />)}
                 </div>
             ) : users.length === 0 ? (
                 <div className="users-empty">
                     <div className="users-empty-icon">👥</div>
                     <p>No team members found.</p>
-                    <p className="users-empty-sub">Members will appear here once they join your organization.</p>
+                    <p className="users-empty-sub">
+                        Members will appear here once they join your organization.
+                    </p>
                 </div>
             ) : (
                 <div className="users-table">
-                    {/* Header */}
                     <div className="users-table-header">
                         <span>Member</span>
                         <span>Role</span>
@@ -103,15 +106,18 @@ function UsersPage() {
                         <span>Actions</span>
                     </div>
 
-                    {/* Rows */}
                     {users.map(user => {
-                        const role    = ROLE_CONFIG[user.role as keyof typeof ROLE_CONFIG] || ROLE_CONFIG.viewer
+                        const roleKey = (user.role || "VIEWER").toUpperCase() as keyof typeof ROLE_CONFIG
+                        const role    = ROLE_CONFIG[roleKey] || ROLE_CONFIG.VIEWER
                         const busy    = updating === user.id
                         const initials = (user.full_name || user.email || "?")
-                            .split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2)
+                            .split(" ").map((w: string) => w[0]).join("").toUpperCase().slice(0, 2)
 
                         return (
-                            <div key={user.id} className={`user-row ${!user.is_active ? "user-row-inactive" : ""}`}>
+                            <div
+                                key={user.id}
+                                className={`user-row ${!user.is_active ? "user-row-inactive" : ""}`}
+                            >
                                 {/* Member info */}
                                 <div className="user-info">
                                     <div className="user-avatar">{initials}</div>
@@ -121,14 +127,14 @@ function UsersPage() {
                                     </div>
                                 </div>
 
-                                {/* Role */}
+                                {/* Role badge */}
                                 <div className="user-role-cell">
                                     <span className={`user-role-badge ${role.className}`}>
                                         {role.label}
                                     </span>
                                 </div>
 
-                                {/* Status */}
+                                {/* Status badge */}
                                 <div className="user-status-cell">
                                     <span className={`user-status-badge ${user.is_active ? "user-status-active" : "user-status-inactive"}`}>
                                         {user.is_active ? "Active" : "Inactive"}
@@ -139,14 +145,14 @@ function UsersPage() {
                                 <div className="user-actions">
                                     <select
                                         className="user-role-select"
-                                        value={user.role}
+                                        value={roleKey}
                                         disabled={busy}
                                         onChange={e => changeRole(user.id, e.target.value)}
                                         title="Change role"
                                     >
-                                        <option value="viewer">Viewer</option>
-                                        <option value="analyst">Analyst</option>
-                                        <option value="admin">Admin</option>
+                                        <option value="VIEWER">Viewer</option>
+                                        <option value="ANALYST">Analyst</option>
+                                        <option value="ADMIN">Admin</option>
                                     </select>
 
                                     <button
@@ -155,9 +161,10 @@ function UsersPage() {
                                         disabled={busy}
                                         title={user.is_active ? "Deactivate user" : "Activate user"}
                                     >
-                                        {busy ? (
-                                            <span className="btn-spinner btn-spinner-sm" />
-                                        ) : user.is_active ? "Deactivate" : "Activate"}
+                                        {busy
+                                            ? <span className="btn-spinner btn-spinner-sm" />
+                                            : user.is_active ? "Deactivate" : "Activate"
+                                        }
                                     </button>
                                 </div>
                             </div>
