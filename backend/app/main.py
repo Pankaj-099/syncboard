@@ -3,8 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
 from app.core.database import engine, Base
-from app.models import task, audit_log, comment  # import all models
-from app.api import tasks, webhooks, audit_logs, analytics, websocket, comments
+from app.models import task, audit_log, comment, user  # added user model
+from app.api import tasks, webhooks, audit_logs, analytics, websocket, comments, users  # added users
 
 # Create all tables
 Base.metadata.create_all(bind=engine)
@@ -47,6 +47,7 @@ app.include_router(webhooks.router)
 app.include_router(audit_logs.router)
 app.include_router(analytics.router)
 app.include_router(websocket.router)
+app.include_router(users.router)
 
 
 @app.api_route("/health", methods=["GET", "HEAD"])
