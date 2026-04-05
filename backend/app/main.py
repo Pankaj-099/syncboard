@@ -1,17 +1,13 @@
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.security import HTTPBearer
 
 from app.core.config import settings
 from app.core.database import engine, Base
-from app.models import task, audit_log, comment, user  # added user model
-from app.api import tasks, webhooks, audit_logs, analytics, websocket, comments, users  # added users
-
+from app.models import task, audit_log, comment, user
+from app.api import tasks, webhooks, audit_logs, analytics, websocket, comments, users
 
 # Create all tables
 Base.metadata.create_all(bind=engine)
-
-security = HTTPBearer()
 
 app = FastAPI(
     title="TaskBoard API",
@@ -20,8 +16,33 @@ app = FastAPI(
     docs_url="/docs",
     redoc_url="/redoc",
     swagger_ui_parameters={"persistAuthorization": True},
-    dependencies=[Depends(security)]
 )
+
+
+# ── Custom OpenAPI schema — adds JWT Authorize button to Swagger UI ──
+def custom_openapi():
+    if app.openapi_schema:
+        return app.openapi_schema
+    from fastapi.openapi.utils import get_openapi
+    schema = get_openapi(
+        title=app.title,
+        version=app.version,
+        description=app.description,
+        routes=app.routes,
+    )
+    schema["components"]["securitySchemes"] = {
+        "BearerAuth": {
+            "type": "http",
+            "scheme": "bearer",
+            "bearerFormat": "JWT",
+        }
+    }
+    schema["security"] = [{"BearerAuth": []}]
+    app.openapi_schema = schema
+    return app.openapi_schema
+
+app.openapi = custom_openapi
+
 
 # ── CORS ──
 app.add_middleware(
