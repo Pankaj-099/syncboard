@@ -7,10 +7,11 @@ from app.core.database import engine, Base
 from app.models import task, audit_log, comment, user  # added user model
 from app.api import tasks, webhooks, audit_logs, analytics, websocket, comments, users  # added users
 
-security = HTTPBearer()
 
 # Create all tables
 Base.metadata.create_all(bind=engine)
+
+security = HTTPBearer()
 
 app = FastAPI(
     title="TaskBoard API",
@@ -19,6 +20,7 @@ app = FastAPI(
     docs_url="/docs",
     redoc_url="/redoc",
     swagger_ui_parameters={"persistAuthorization": True},
+    dependencies=[Depends(security)]
 )
 
 # ── CORS ──
