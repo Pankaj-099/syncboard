@@ -6,15 +6,6 @@
 
 ---
 
-## Finance Dashboard Assignment — Mapping
-
-> This project was originally built as a B2B SaaS Kanban task management system.
-> The architecture, access control patterns, and API design directly satisfy the requirements
-> of the Finance Data Processing and Access Control Backend assignment.
-> Below is the explicit mapping between assignment requirements and this implementation.
-
----
-
 ### 1. User and Role Management
 
 | Assignment Requirement | Implementation |
